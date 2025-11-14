@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025년 10월 전국 병의원 개업 및 폐업 조사분석 보고서</title>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.35);
+            --text-primary: #f4f6fb;
+            --text-secondary: #d2d7e4;
+            --accent: #7de0c5;
+            --accent-strong: #2ac1a6;
+            --shadow: 0 25px 60px rgba(10, 18, 38, 0.35);
+            --radius: 24px;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Pretendard", "Noto Sans KR", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at top, #1f3b73 0%, #0d172f 55%, #090f1f 100%);
+            color: var(--text-primary);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 16px 80px;
+        }
+        .glass-shell {
+            width: min(1100px, 100%);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(24px);
+            padding: 48px clamp(18px, 3vw, 48px);
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-shell::before,
+        .glass-shell::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.45;
+            pointer-events: none;
+        }
+        .glass-shell::before {
+            width: 320px;
+            height: 320px;
+            background: #67d2ff;
+            top: -120px;
+            right: -120px;
+        }
+        .glass-shell::after {
+            width: 260px;
+            height: 260px;
+            background: #8d7bff;
+            bottom: -140px;
+            left: -90px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        header h1 {
+            margin: 0;
+            font-size: clamp(26px, 4vw, 40px);
+            line-height: 1.3;
+            font-weight: 700;
+        }
+        header p {
+            margin: 8px 0 0;
+            color: var(--text-secondary);
+            font-size: clamp(14px, 2vw, 16px);
+        }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        .icon-card {
+            padding: 20px;
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+        .icon-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+        .icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.15);
+            display: grid;
+            place-items: center;
+            font-size: 32px;
+            align-self: flex-start;
+        }
+        .icon-card strong {
+            font-size: 16px;
+        }
+        section {
+            margin-bottom: 40px;
+            padding: 32px;
+            border-radius: var(--radius);
+            background: rgba(9, 15, 31, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            z-index: 1;
+        }
+        section h2 {
+            margin-top: 0;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        section h2 span {
+            font-size: 24px;
+        }
+        p {
+            margin: 12px 0 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .table-wrap {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 320px;
+        }
+        th, td {
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            text-align: left;
+            color: var(--text-secondary);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        tr:nth-child(even) td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .signature {
+            text-align: right;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.16);
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 1;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 999px;
+            background: rgba(122, 224, 197, 0.2);
+            color: var(--accent);
+            border: 1px solid rgba(122, 224, 197, 0.4);
+        }
+        @media (max-width: 720px) {
+            .glass-shell {
+                padding: 36px 20px 48px;
+            }
+            section {
+                padding: 24px;
+            }
+            table {
+                font-size: 14px;
+            }
+            th, td {
+                padding: 12px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="glass-shell">
+    <header>
+        <div class="badge">의료 시장 인사이트 · 2025.10</div>
+        <h1>2025년 10월 전국 병의원 개업 및 폐업 조사분석 보고서</h1>
+        <p>National Medical Facility Opening & Closing Analysis Report · October 2025</p>
+    </header>
+
+    <div class="icon-grid">
+        <div class="icon-card">
+            <div class="icon">📊</div>
+            <strong>전국 현황</strong>
+            <span>개업 79 / 폐업 23, 순증 56</span>
+        </div>
+        <div class="icon-card">
+            <div class="icon">🩺</div>
+            <strong>진료과목</strong>
+            <span>정형외과, 신경외과 등 핵심 과목 분석</span>
+        </div>
+        <div class="icon-card">
+            <div class="icon">🏥</div>
+            <strong>병원급 동향</strong>
+            <span>수도권·광역시 중심 개업 러시</span>
+        </div>
+        <div class="icon-card">
+            <div class="icon">🧭</div>
+            <strong>전략 포인트</strong>
+            <span>지역별 공급 확대와 리스크 점검</span>
+        </div>
+    </div>
+
+    <section>
+        <h2><span>①</span> 전국 개업·폐업 현황</h2>
+        <p>2025년 10월 전국에서는 총 <strong>79개</strong>의 병의원이 개업하고 <strong>23개</strong>가 폐업한 것으로 집계되었습니다. 개업이 폐업보다 3배 이상 많아 전반적인 의료기관의 순증가를 보였습니다.</p>
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>구분</th>
+                    <th style="text-align: right;">기관 수 (개)</th>
+                </tr>
+                <tr>
+                    <td><strong>총 개업</strong></td>
+                    <td style="text-align: right;">79</td>
+                </tr>
+                <tr>
+                    <td><strong>총 폐업</strong></td>
+                    <td style="text-align: right;">23</td>
+                </tr>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h2><span>②</span> 주요 진료과목별 현황</h2>
+        <p>특정 키워드를 중심으로 개업 및 폐업 현황을 분석한 결과는 다음과 같습니다. '병원'급 의료기관은 <strong>5곳</strong>이 신설되고 <strong>2곳</strong>이 문을 닫아 <strong>3곳</strong>이 순증했습니다. 특히 '정형외과'는 <strong>4곳</strong>이 개업하고 <strong>1곳</strong>이 폐업하여 관련 분야의 의료 서비스 공급이 확대된 것으로 나타났습니다. '신경외과'는 <strong>1곳</strong>이 개업하고 <strong>1곳</strong>이 폐업하여 변동이 없었습니다.</p>
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>구분</th>
+                    <th style="text-align: center;">개업 (개)</th>
+                    <th style="text-align: center;">폐업 (개)</th>
+                </tr>
+                <tr>
+                    <td><strong>병원</strong></td>
+                    <td style="text-align: center;">5</td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr>
+                    <td><strong>정형외과</strong></td>
+                    <td style="text-align: center;">4</td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr>
+                    <td><strong>신경외과</strong></td>
+                    <td style="text-align: center;">1</td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h2><span>③</span> 주목해야 할 병원급 의료기관 동향</h2>
+        <p>2025년 10월 중 개업 및 폐업한 병원급 의료기관은 다음과 같습니다. 수도권과 광역시를 중심으로 신규 병원급 의료기관의 개원이 활발했던 반면, 경기와 서울에서 각 1곳의 병원이 문을 닫았습니다.</p>
+
+        <h3>신규 개업 병원</h3>
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>병원명</th>
+                    <th style="text-align: center;">개업일</th>
+                    <th>주소</th>
+                </tr>
+                <tr>
+                    <td><strong>라벤더힐병원</strong></td>
+                    <td style="text-align: center;">2025.10.17</td>
+                    <td>경기도 용인시 수지구 이종무로203번길 33</td>
+                </tr>
+                <tr>
+                    <td><strong>베스트병원</strong></td>
+                    <td style="text-align: center;">2025.10.24</td>
+                    <td>경상남도 진주시 서장대로213번길 7</td>
+                </tr>
+                <tr>
+                    <td><strong>조아진병원</strong></td>
+                    <td style="text-align: center;">2025.10.22</td>
+                    <td>광주광역시 동구 무등로 329</td>
+                </tr>
+                <tr>
+                    <td><strong>강동아너스힐병원</strong></td>
+                    <td style="text-align: center;">2025.10.31</td>
+                    <td>서울특별시 강동구 양재대로 1463, 5~15층</td>
+                </tr>
+                <tr>
+                    <td><strong>정담병원</strong></td>
+                    <td style="text-align: center;">2025.10.31</td>
+                    <td>인천광역시 남동구 구월남로 153, W타워 3,4,5,6층</td>
+                </tr>
+            </table>
+        </div>
+
+        <h3>폐업 병원</h3>
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>병원명</th>
+                    <th style="text-align: center;">폐업일</th>
+                    <th>주소</th>
+                </tr>
+                <tr>
+                    <td><strong>민정형외과병원</strong></td>
+                    <td style="text-align: center;">2025.10.02</td>
+                    <td>경기도 안양시 만안구 안양로 375, 유연빌딩</td>
+                </tr>
+                <tr>
+                    <td><strong>맑은수병원</strong></td>
+                    <td style="text-align: center;">2025.10.25</td>
+                    <td>서울특별시 동대문구 천호대로83길 44</td>
+                </tr>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h2><span>④</span> 요약 및 결론</h2>
+        <p>2025년 10월 의료 시장은 폐업 대비 개업이 월등히 많아 양적 성장을 이어갔습니다. 특히 병원급 의료기관과 정형외과 의원의 순증가가 두드러져 해당 분야의 의료 수요 증가와 공급 확대를 동시에 엿볼 수 있었습니다. 수도권 및 주요 광역시를 중심으로 한 신규 병원 개설은 지역 의료 서비스의 양적 확장에 기여할 것으로 전망됩니다.</p>
+    </section>
+
+    <div class="signature">
+        <p><strong>2025년 11월 14일</strong></p>
+        <p><strong>분석 보고자: 김포다조은병원 김경훈 과장</strong></p>
+    </div>
+</div>
+</body>
+</html>
+
